@@ -9,73 +9,29 @@ This is not just terrible for privacy, it's also incredibly lame. What if you _r
 
 For a semi-technical overview of this tool, check out the video: https://youtu.be/btUbcsTbVA8
 
-## Usage
+## Original Report ([#461](https://github.com/p2r3/convert/issues/461#issue-3998151429))
+**File Format**
+MHTML is a container format for holding various files inside, usually acting as an archive format for web pages or emails. It holds most non-text data in base64, as a MIME-encoded file, similar to email formats.
+Most commonly comes in `.mhtml`, sometimes `.mht` file extensions. The common MIME content type is `multipart/related`. Other MIME content types might be `application/x-mimearchive` or `message/rfc822`.
 
-1. Go to [convert.to.it](https://convert.to.it/)
-2. Click the big blue box to add your file (or just drag it on to the window).
-3. An input format should have been automatically selected. If it wasn't, yikes! Try searching for it, or if it's really not there, see the "Issues" section below.
-4. Select an output format from the second list. If you're on desktop, that's the one on the right side. If you're on mobile, it'll be somewhere lower down.
-5. Click **Convert**!
-6. Hopefully, after a bit (or a lot) of thinking, the program will spit out the file you wanted. If not, see the "Issues" section below.
+**Expected behavior**
+MHTML -> HTML: Should pool all resources of the MHTML file to a single HTML file.
 
-## Issues
+**Reference implementations**
+[gildas-lormeau/mhtml-to-html](https://github.com/gildas-lormeau/mhtml-to-html?) (MIT license, javascript code)
 
-Ever since the YouTube video released, we've been getting spammed with issues suggesting the addition of all kinds of niche file formats. To keep things organized, I've decided to specify what counts as a valid issue and what doesn't.
+**Plans on implementing this yourself?**
+No, not anytime soon
 
-> [!IMPORTANT]
-> **SIMPLY ASKING FOR A FILE FORMAT TO BE ADDED IS NOT A MEANINGFUL ISSUE!**
+**Additional context**
+None
 
-There are thousands of file formats out there. It can take hours to add support for just one. The math is simple - we can't possibly support every single file. As such, simply listing your favorite file formats is not helpful. We already know that there are formats we don't support, we don't need tickets to tell us that.
-
-When suggesting a file format, you must _at minimum_:
-- Make sure that there isn't already an issue about the same thing, and that we don't already support the format.
-- Explain what you expect the conversion to be like (what medium is it converting to/from). It's important to note here that simply parsing the underlying data is _not sufficient_. Imagine if we only treated SVG images as raw XML data and didn't support converting them to raster images - that would defeat the point. In other words, try to avoid crude "binary waterfalls".
-- Provide links to existing browser-based solutions if possible, or at the very least a reference for implementing the format, and make sure the license is compatible with GPL-2.0.
-
-If this seems like a lot, please remember - a developer will have to do 100x more work to actually implement the format. Doing a bit of research not only saves them precious time, it also weeds out "unserious" proposals that would only bloat our to-do list.
-
-**If you're submitting a bug report,** you only need to do step 1 - check if the problem isn't already reported by someone else. Bug reports are generally quite important otherwise.
-
-Though please note, "converting X to Y doesn't work" is **not** a bug report.  However, "converting X to Y works but not how I expected" likely **is** a bug report.
-
-## Deployment
-
-### Local development (Bun + Vite)
+## Local development (Bun + Vite)
 
 1. Clone this repository ***WITH SUBMODULES***. You can use `git clone --recursive https://github.com/p2r3/convert` for that. Omitting submodules will leave you missing a few dependencies.
 2. Install [Bun](https://bun.sh/).
 3. Run `bun install` to install dependencies.
 4. Run `bunx vite` to start the development server.
-
-_The following steps are optional, but recommended for performance:_
-
-When you first open the page, it'll take a while to generate the list of supported formats for each tool. If you open the console, you'll see it complaining a bunch about missing caches.
-
-After this is done (indicated by a `Built initial format list` message in the console), use `printSupportedFormatCache()` to get a JSON string with the cache data. You can then save this string to `cache.json` to skip that loading screen on startup.
-
-If you run into issues where your changes seem to not be applying, try disabling this cache.
-
-### Docker (prebuilt image)
-
-Docker compose files live in the `docker/` directory, so run compose with `-f` from the repository root:
-
-```bash
-docker compose -f docker/docker-compose.yml up -d
-```
-
-Alternatively download the `docker-compose.yml` separately and start it by executing `docker compose up -d` in the same directory.
-
-This runs the container on `http://localhost:8080/convert/`.
-
-### Docker (local build for development)
-
-Use the override file to build the image locally:
-
-```bash
-docker compose -f docker/docker-compose.yml -f docker/docker-compose.override.yml up --build -d
-```
-
-The first Docker build is expected to be slow because Chromium and related system packages are installed in the build stage (needed for puppeteer in `buildCache.js`). Later builds are usually much faster due to Docker layer caching.
 
 ## Contributing
 
@@ -170,15 +126,5 @@ If your tool requires an external dependency (which it likely does), there are c
 
 - If you need to load a WebAssembly binary (or similar), add its path to [vite.config.js](vite.config.js) and target it under `/convert/wasm/`. **Do not link to node_modules**.
 
-### AI Usage Policy
-
-If you intend to use an LLM, agent-enabled IDE, or other AI-driven tool for your contribution, please follow these guidelines:
-
-- Clearly state that you've used an LLM, ideally in your pull request's description. Do not attempt to pass off an AI's work as your own. I'm far more likely to accept a pull request that openly admits to using AI than one that does but pretends it doesn't. Transparency helps the maintainer (me) know what to keep an eye out for (e.g. hallucinations), and helps you keep yourself in check.
-- Do not overindulge. If your contribution is trivial or simple enough to be written by hand, please opt to write it by hand. This is especially true if it's your first contribution. You're much more likely to retain knowledge and understanding about architectural details if you've familiarized yourself with the process hands-on first.
-- Keep the scope to things you _could_ do by hand. LLMs are tools, and this is a community-driven project. Orchestrating an AI to write logic that you don't fully comprehend is not only reckless for a community project, it's also disrespectful towards human contributors who took the time to research their additions. In other words, there should _never_ be a scenario where you _need_ an LLM.
-- Explain what you (and the LLM) are doing, in a way that makes it clear that you understand the changes you're making.
-
-Not adhering to these rules will likely get your pull request closed.
-
-I figure that there are people who'd prefer if I merged _zero_ AI-written code, but I believe that's simply not feasible. Just from a code integrity perspective, it's much safer to be transparent about AI usage and define clear guidelines than to make it a taboo and risk people "sneaking in" unvetted AI code. Making things illegal doesn't stop everyone from doing those things - some will still do them, just in secret and with less oversight.
+### LLM Status:
+No ai of any sort used at the moment
